@@ -27,6 +27,7 @@
 #include <set>
 #include <algorithm>
 #include <utility>
+// #include <unordered_set>
 
 using namespace std;
 
@@ -40,9 +41,11 @@ public:
 	void findToUncover();
 private:
 	vector<vector<int>> board;
-	vector<pair<int,int>> queue;
+	set<pair<int,int>> queue;
 	set<pair<int, int>> uncoveredSet;
 	set<pair<int,int>> visitedZeros;
+    int rows;
+    int cols;
 	int uncovered;
 	int uncoverGoal;
 	int x_uncovered;

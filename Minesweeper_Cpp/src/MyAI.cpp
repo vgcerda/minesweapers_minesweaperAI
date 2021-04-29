@@ -18,119 +18,166 @@
 // ======================================================================
 
 #include "MyAI.hpp"
-#include <pair>;
+
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
-	vector<vector<int>> b(_rowDimension, vector<int> (_colDimension));
+	vector<vector<int>> b(_rowDimension, vector<int>(_colDimension, -1));
+    rows = _rowDimension;
+    cols = _colDimension;
 	board = b;
+
+    uncoverGoal = (_rowDimension * _colDimension) - totalMines;
+
 	uncovered = 0;
+
 	x_uncovered = _agentX;
 	y_uncovered = _agentY;
-	uncoverGoal = (_rowDimension * _colDimension) - totalMines;
+
+    pair<int, int> firstTile(_agentX, _agentY);
+
+    queue.insert(firstTile);
 };
 
 Agent::Action MyAI::getAction( int number )
 {
-	board[x_uncovered][y_uncovered] = number;
-	uncovered++; 
-	if(uncoverGoal == uncovered)
-	{
-		return {LEAVE,-1,-1};
-	}
-	else
+    board[x_uncovered][y_uncovered] = number;
+
+    // cout << uncovered << " tiles out of " << uncoverGoal << " uncovered" << endl;
+    // for (vector<int> row: board) {
+    //     string rowString = "";
+    //     for (int val: row) {
+    //         if (val == -1){
+    //             rowString += "-";
+    //         }
+    //         else{
+    //             rowString += to_string(val);
+    //         }
+    //         rowString += " ";
+    //     }
+    //     cout << rowString << endl;
+    // }
+    // string x;
+    // cin >> x;
+
+	if (uncoverGoal != uncovered)
 	{
 		if(queue.size() == 0)
 		{
 			findToUncover();
 		}
-		pair<int,int> coor = queue[queue.size()-1];
-		queue.pop_back();
-		return {UNCOVER, coor.first, coor.second};
+        if(queue.size() != 0)
+        {
+            // Get UNCOVER coord from queue
+            pair<int,int> coord = *queue.begin();
+            x_uncovered = coord.first;
+            y_uncovered = coord.second;
+
+            // cout << "Uncovering " << x_uncovered << ", " << y_uncovered << endl;
+            queue.erase(queue.begin());
+
+            // Update number of tiles uncovered
+            uncovered++;
+
+            // Update uncovered tiles set
+            pair<int, int> c(x_uncovered, y_uncovered);
+            uncoveredSet.insert(c);
+            return {UNCOVER, coord.first, coord.second};
+        }
 	}
+    return {LEAVE,-1,-1};
 }
 
 void MyAI::findToUncover()
 {
 	for(auto coord : uncoveredSet)
 	{
+        // cout << to_string(coord.first) + " " +  to_string(coord.second);
 		int i = coord.first;
 		int j = coord.second;
 		pair<int, int> c(i,j);
-		if(board[i][j] == 0 && visitedZeros.find(c) != visitedZeros.end())
+		if(board[i][j] == 0 && visitedZeros.find(coord) == visitedZeros.end())
 		{
 			// i , j + 1
 			if(j + 1 < board[i].size())
 			{
 				pair<int,int> right(i,j+1);
-				if(uncoveredSet.find(right) != uncoveredSet.end())
+				if(uncoveredSet.find(right) == uncoveredSet.end())
 				{
-					queue.push_back(right);
+					queue.insert(right);
 				}
 			}
 			// i, j - 1
-			if(j - 1 > 0)
+			if(j - 1 >= 0)
 			{
 				pair<int,int> left(i,j-1);
-				if(uncoveredSet.find(left) != uncoveredSet.end())
+				if(uncoveredSet.find(left) == uncoveredSet.end())
 				{
-					queue.push_back(left);
+					queue.insert(left);
 				}
 			}
 			// i + 1, j
 			if(i + 1 < board.size())
 			{
 				pair<int,int> down(i+1,j);
-				if(uncoveredSet.find(down) != uncoveredSet.end())
+				if(uncoveredSet.find(down) == uncoveredSet.end())
 				{
-					queue.push_back(down);
+					queue.insert(down);
 				}
 			}
 			// i - 1, j
-			if(i - 1 > 0)
+			if(i - 1 >= 0)
 			{
 				pair<int,int> up(i-1,j);
-				if(uncoveredSet.find(up) != uncoveredSet.end())
+				if(uncoveredSet.find(up) == uncoveredSet.end())
 				{
-					queue.push_back(up);
+					queue.insert(up);
 				}
 			}
 			// i + 1, j - 1
-			if(i + 1 < board.size() && j - 1 > 0)
+			if(i + 1 < board.size() && j - 1 >= 0)
 			{
 				pair<int,int> downLeft(i+1,j-1);
-				if(uncoveredSet.find(downLeft) != uncoveredSet.end())
+				if(uncoveredSet.find(downLeft) == uncoveredSet.end())
 				{
-					queue.push_back(downLeft);
+					queue.insert(downLeft);
 				}
 			}
 			// i + 1, j + 1
 			if(i + 1 < board.size() && j + 1 < board[i].size())
 			{
 				pair<int,int> downRight(i+1,j+1);
-				if(uncoveredSet.find(downRight) != uncoveredSet.end())
+				if(uncoveredSet.find(downRight) == uncoveredSet.end())
 				{
-					queue.push_back(downRight);
+					queue.insert(downRight);
 				}
 			}
 			// i - 1, j - 1
-			if(i - 1 > 0 && j - 1 > 0)
+			if(i - 1 >= 0 && j - 1 >= 0)
 			{
 				pair<int,int> upLeft(i-1,j-1);
-				if(uncoveredSet.find(upLeft) != uncoveredSet.end())
+				if(uncoveredSet.find(upLeft) == uncoveredSet.end())
 				{
-					queue.push_back(upLeft);
+					queue.insert(upLeft);
 				}
 			}
 			// i - 1, j + 1
-			if(i - 1 > 0 && j + 1 < board[i].size())
+			if(i - 1 >= 0 && j + 1 < board[i].size())
 			{
 				pair<int,int> upRight(i-1,j+1);
-				if(uncoveredSet.find(upRight) != uncoveredSet.end())
+				if(uncoveredSet.find(upRight) == uncoveredSet.end())
 				{
-					queue.push_back(upRight);
+					queue.insert(upRight);
 				}
 			}
 			visitedZeros.insert(c);
 		}
 	}
+    if (queue.size() == 0) {
+        // cout << "Failed" << endl;
+
+    }
+    // cout << "Pairs in queue" << endl;
+    // for(auto x: queue) {
+    //     cout << x.first << ", " << x.second << endl;
+    // }
 }
