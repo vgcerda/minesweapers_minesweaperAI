@@ -18,7 +18,7 @@
 // ======================================================================
 
 #include "MyAI.hpp"
-
+#include <pair>;
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
     // ======================================================================
