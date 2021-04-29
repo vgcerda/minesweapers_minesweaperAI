@@ -26,26 +26,27 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <utility>
 
 using namespace std;
 
 class MyAI : public Agent
 {
 public:
-    MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY );
+	MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY );
 
-    Action getAction ( int number ) override;
+	Action getAction ( int number ) override;
 
-
-    // ======================================================================
-    // YOUR CODE BEGINS
-    // ======================================================================
-
-
-
-    // ======================================================================
-    // YOUR CODE ENDS
-    // ======================================================================
+	void findToUncover();
+private:
+	vector<vector<int>> board;
+	vector<pair<int,int>> queue;
+	set<pair<int, int>> uncoveredSet;
+	set<pair<int,int>> visitedZeros;
+	int uncovered;
+	int uncoverGoal;
+	int x_uncovered;
+	int y_uncovered;
 };
 
 #endif //MINE_SWEEPER_CPP_SHELL_MYAI_HPP
