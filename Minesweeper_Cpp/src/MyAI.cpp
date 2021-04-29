@@ -22,42 +22,42 @@
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
 	vector<vector<int>> b(_rowDimension, vector<int>(_colDimension, -1));
-    rows = _rowDimension;
-    cols = _colDimension;
+	rows = _rowDimension;
+	cols = _colDimension;
 	board = b;
 
-    uncoverGoal = (_rowDimension * _colDimension) - totalMines;
+    	uncoverGoal = (_rowDimension * _colDimension) - totalMines;
 
 	uncovered = 0;
 
 	x_uncovered = _agentX;
 	y_uncovered = _agentY;
 
-    pair<int, int> firstTile(_agentX, _agentY);
+	pair<int, int> firstTile(_agentX, _agentY);
 
-    queue.insert(firstTile);
+	queue.insert(firstTile);
 };
 
 Agent::Action MyAI::getAction( int number )
 {
-    board[x_uncovered][y_uncovered] = number;
+	board[x_uncovered][y_uncovered] = number;
 
-    // cout << uncovered << " tiles out of " << uncoverGoal << " uncovered" << endl;
-    // for (vector<int> row: board) {
-    //     string rowString = "";
-    //     for (int val: row) {
-    //         if (val == -1){
-    //             rowString += "-";
-    //         }
-    //         else{
-    //             rowString += to_string(val);
-    //         }
-    //         rowString += " ";
-    //     }
-    //     cout << rowString << endl;
-    // }
-    // string x;
-    // cin >> x;
+	// cout << uncovered << " tiles out of " << uncoverGoal << " uncovered" << endl;
+	// for (vector<int> row: board) {
+	//     string rowString = "";
+	//     for (int val: row) {
+	//         if (val == -1){
+	//             rowString += "-";
+	//         }
+	//         else{
+	//             rowString += to_string(val);
+	//         }
+	//         rowString += " ";
+	//     }
+	//     cout << rowString << endl;
+	// }
+	// string x;
+	// cin >> x;
 
 	if (uncoverGoal != uncovered)
 	{
@@ -65,26 +65,26 @@ Agent::Action MyAI::getAction( int number )
 		{
 			findToUncover();
 		}
-        if(queue.size() != 0)
-        {
-            // Get UNCOVER coord from queue
-            pair<int,int> coord = *queue.begin();
-            x_uncovered = coord.first;
-            y_uncovered = coord.second;
+		if(queue.size() != 0)
+		{
+			// Get UNCOVER coord from queue
+			pair<int,int> coord = *queue.begin();
+			x_uncovered = coord.first;
+			y_uncovered = coord.second;
 
-            // cout << "Uncovering " << x_uncovered << ", " << y_uncovered << endl;
-            queue.erase(queue.begin());
+			// cout << "Uncovering " << x_uncovered << ", " << y_uncovered << endl;
+			queue.erase(queue.begin());
 
-            // Update number of tiles uncovered
-            uncovered++;
+			// Update number of tiles uncovered
+			uncovered++;
 
-            // Update uncovered tiles set
-            pair<int, int> c(x_uncovered, y_uncovered);
-            uncoveredSet.insert(c);
-            return {UNCOVER, coord.first, coord.second};
-        }
+			// Update uncovered tiles set
+			pair<int, int> c(x_uncovered, y_uncovered);
+			uncoveredSet.insert(c);
+			return {UNCOVER, coord.first, coord.second};
+		}
 	}
-    return {LEAVE,-1,-1};
+	return {LEAVE,-1,-1};
 }
 
 void MyAI::findToUncover()
