@@ -172,10 +172,9 @@ void MyAI::findToUncover()
 			visitedZeros.insert(c);
 		}
 	}
-    if (queue.size() == 0) {
-        // cout << "Failed" << endl;
-
-    }
+    // if (queue.size() == 0) {
+    //     cout << "Failed" << endl;
+    // }
     // cout << "Pairs in queue" << endl;
     // for(auto x: queue) {
     //     cout << x.first << ", " << x.second << endl;
