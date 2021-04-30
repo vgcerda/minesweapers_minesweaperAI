@@ -51,6 +51,13 @@ private:
 	int x_uncovered;
 	int y_uncovered;
 	double total_time_elapsed;
+	const Action_type actions[4] =
+	{
+		LEAVE,
+		UNCOVER,
+		FLAG,
+		UNFLAG,
+	};
 };
 
 #endif //MINE_SWEEPER_CPP_SHELL_MYAI_HPP

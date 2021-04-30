@@ -18,7 +18,6 @@
 // ======================================================================
 
 #include "MyAI.hpp"
-#include <unistd.h>
 
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
@@ -42,10 +41,10 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
 
 Agent::Action MyAI::getAction( int number )
 {
-	// cout<<total_time_elapsed<<" ";
 	if(total_time_elapsed > 290.0)
 	{
 		// Make random moves
+		return{actions[rand() % 4], rand() % rows, rand() % cols};
 	}
 	else
 	{
@@ -73,7 +72,7 @@ Agent::Action MyAI::getAction( int number )
 				// Update uncovered tiles set
 				pair<int, int> c(x_uncovered, y_uncovered);
 				uncoveredSet.insert(c);
-				//usleep(1000000);
+
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> diff = end-start;
 				total_time_elapsed += diff.count();
