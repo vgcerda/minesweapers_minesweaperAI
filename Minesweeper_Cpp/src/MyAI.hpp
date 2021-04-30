@@ -27,7 +27,7 @@
 #include <set>
 #include <algorithm>
 #include <utility>
-// #include <unordered_set>
+#include <chrono>
 
 using namespace std;
 
@@ -44,12 +44,20 @@ private:
 	set<pair<int,int>> queue;
 	set<pair<int, int>> uncoveredSet;
 	set<pair<int,int>> visitedZeros;
-    int rows;
-    int cols;
+	int rows;
+	int cols;
 	int uncovered;
 	int uncoverGoal;
 	int x_uncovered;
 	int y_uncovered;
+	double total_time_elapsed;
+	const Action_type actions[4] =
+	{
+		LEAVE,
+		UNCOVER,
+		FLAG,
+		UNFLAG,
+	};
 };
 
 #endif //MINE_SWEEPER_CPP_SHELL_MYAI_HPP

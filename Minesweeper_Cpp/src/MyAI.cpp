@@ -21,6 +21,7 @@
 
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
+	total_time_elapsed = 0.0;
 	vector<vector<int>> b(_rowDimension, vector<int>(_colDimension, -1));
 	rows = _rowDimension;
 	cols = _colDimension;
@@ -40,48 +41,43 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
 
 Agent::Action MyAI::getAction( int number )
 {
-	board[x_uncovered][y_uncovered] = number;
-
-	// cout << uncovered << " tiles out of " << uncoverGoal << " uncovered" << endl;
-	// for (vector<int> row: board) {
-	//     string rowString = "";
-	//     for (int val: row) {
-	//         if (val == -1){
-	//             rowString += "-";
-	//         }
-	//         else{
-	//             rowString += to_string(val);
-	//         }
-	//         rowString += " ";
-	//     }
-	//     cout << rowString << endl;
-	// }
-	// string x;
-	// cin >> x;
-
-	if (uncoverGoal != uncovered)
+	if(total_time_elapsed > 290.0)
 	{
-		if(queue.size() == 0)
+		// Make random moves
+		return{actions[rand() % 4], rand() % rows, rand() % cols};
+	}
+	else
+	{
+		auto start = std::chrono::system_clock::now();
+		board[x_uncovered][y_uncovered] = number;
+
+		if (uncoverGoal != uncovered)
 		{
-			findToUncover();
-		}
-		if(queue.size() != 0)
-		{
-			// Get UNCOVER coord from queue
-			pair<int,int> coord = *queue.begin();
-			x_uncovered = coord.first;
-			y_uncovered = coord.second;
+			if(queue.size() == 0)
+			{
+				findToUncover();
+			}
+			if(queue.size() != 0)
+			{
+				// Get UNCOVER coord from queue
+				pair<int,int> coord = *queue.begin();
+				x_uncovered = coord.first;
+				y_uncovered = coord.second;
 
-			// cout << "Uncovering " << x_uncovered << ", " << y_uncovered << endl;
-			queue.erase(queue.begin());
+				queue.erase(queue.begin());
 
-			// Update number of tiles uncovered
-			uncovered++;
+				// Update number of tiles uncovered
+				uncovered++;
 
-			// Update uncovered tiles set
-			pair<int, int> c(x_uncovered, y_uncovered);
-			uncoveredSet.insert(c);
-			return {UNCOVER, coord.first, coord.second};
+				// Update uncovered tiles set
+				pair<int, int> c(x_uncovered, y_uncovered);
+				uncoveredSet.insert(c);
+
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> diff = end-start;
+				total_time_elapsed += diff.count();
+				return {UNCOVER, coord.first, coord.second};
+			}
 		}
 	}
 	return {LEAVE,-1,-1};
@@ -172,11 +168,4 @@ void MyAI::findToUncover()
 			visitedZeros.insert(c);
 		}
 	}
-    // if (queue.size() == 0) {
-    //     cout << "Failed" << endl;
-    // }
-    // cout << "Pairs in queue" << endl;
-    // for(auto x: queue) {
-    //     cout << x.first << ", " << x.second << endl;
-    // }
 }
