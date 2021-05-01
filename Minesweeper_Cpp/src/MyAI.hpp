@@ -41,9 +41,11 @@ public:
 	void findToUncover();
 private:
 	vector<vector<int>> board;
-	set<pair<int,int>> queue;
+	set<pair<int,int>> S;
+    set<pair<int,int>> Q;
 	set<pair<int, int>> uncoveredSet;
 	set<pair<int,int>> visitedZeros;
+    map<pair<int, int>, int> effectiveLabel;
 	int rows;
 	int cols;
 	int uncovered;

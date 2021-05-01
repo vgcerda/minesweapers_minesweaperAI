@@ -35,8 +35,7 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
 	y_uncovered = _agentY;
 
 	pair<int, int> firstTile(_agentX, _agentY);
-
-	queue.insert(firstTile);
+	S.insert(firstTile);
 };
 
 Agent::Action MyAI::getAction( int number )
@@ -50,21 +49,23 @@ Agent::Action MyAI::getAction( int number )
 	{
 		auto start = std::chrono::system_clock::now();
 		board[x_uncovered][y_uncovered] = number;
+        pair<int, int> x_y(x_uncovered, y_uncovered);
+        effectiveLabel[x_y] = number;
 
 		if (uncoverGoal != uncovered)
 		{
-			if(queue.size() == 0)
+			if(S.size() == 0)
 			{
 				findToUncover();
 			}
-			if(queue.size() != 0)
+			if(S.size() != 0)
 			{
-				// Get UNCOVER coord from queue
-				pair<int,int> coord = *queue.begin();
+				// Get UNCOVER coord from S
+				pair<int,int> coord = *S.begin();
 				x_uncovered = coord.first;
 				y_uncovered = coord.second;
 
-				queue.erase(queue.begin());
+				S.erase(S.begin());
 
 				// Update number of tiles uncovered
 				uncovered++;
@@ -99,7 +100,7 @@ void MyAI::findToUncover()
 				pair<int,int> right(i,j+1);
 				if(uncoveredSet.find(right) == uncoveredSet.end())
 				{
-					queue.insert(right);
+					S.insert(right);
 				}
 			}
 			// i, j - 1
@@ -108,7 +109,7 @@ void MyAI::findToUncover()
 				pair<int,int> left(i,j-1);
 				if(uncoveredSet.find(left) == uncoveredSet.end())
 				{
-					queue.insert(left);
+					S.insert(left);
 				}
 			}
 			// i + 1, j
@@ -117,7 +118,7 @@ void MyAI::findToUncover()
 				pair<int,int> down(i+1,j);
 				if(uncoveredSet.find(down) == uncoveredSet.end())
 				{
-					queue.insert(down);
+					S.insert(down);
 				}
 			}
 			// i - 1, j
@@ -126,7 +127,7 @@ void MyAI::findToUncover()
 				pair<int,int> up(i-1,j);
 				if(uncoveredSet.find(up) == uncoveredSet.end())
 				{
-					queue.insert(up);
+					S.insert(up);
 				}
 			}
 			// i + 1, j - 1
@@ -135,7 +136,7 @@ void MyAI::findToUncover()
 				pair<int,int> downLeft(i+1,j-1);
 				if(uncoveredSet.find(downLeft) == uncoveredSet.end())
 				{
-					queue.insert(downLeft);
+					S.insert(downLeft);
 				}
 			}
 			// i + 1, j + 1
@@ -144,7 +145,7 @@ void MyAI::findToUncover()
 				pair<int,int> downRight(i+1,j+1);
 				if(uncoveredSet.find(downRight) == uncoveredSet.end())
 				{
-					queue.insert(downRight);
+					S.insert(downRight);
 				}
 			}
 			// i - 1, j - 1
@@ -153,7 +154,7 @@ void MyAI::findToUncover()
 				pair<int,int> upLeft(i-1,j-1);
 				if(uncoveredSet.find(upLeft) == uncoveredSet.end())
 				{
-					queue.insert(upLeft);
+					S.insert(upLeft);
 				}
 			}
 			// i - 1, j + 1
@@ -162,10 +163,15 @@ void MyAI::findToUncover()
 				pair<int,int> upRight(i-1,j+1);
 				if(uncoveredSet.find(upRight) == uncoveredSet.end())
 				{
-					queue.insert(upRight);
+					S.insert(upRight);
 				}
 			}
 			visitedZeros.insert(c);
 		}
 	}
+
+    // if (S.size() == 0)
+    // {
+
+    // }
 }
