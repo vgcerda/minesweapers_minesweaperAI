@@ -34,11 +34,20 @@ using namespace std;
 class MyAI : public Agent
 {
 public:
+    static int count;
+
 	MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY );
 
 	Action getAction ( int number ) override;
 
 	void findToUncover();
+
+	set<pair<int, int>> getUnmarkedTiles(pair<int,int> x);
+
+	void addUnmarkedNeighborsToS(pair<int,int> x);
+
+	void mark(pair<int, int> y);
+
 private:
 	vector<vector<int>> board;
 	set<pair<int,int>> S;
@@ -53,13 +62,6 @@ private:
 	int x_uncovered;
 	int y_uncovered;
 	double total_time_elapsed;
-	const Action_type actions[4] =
-	{
-		LEAVE,
-		UNCOVER,
-		FLAG,
-		UNFLAG,
-	};
 };
 
 #endif //MINE_SWEEPER_CPP_SHELL_MYAI_HPP
