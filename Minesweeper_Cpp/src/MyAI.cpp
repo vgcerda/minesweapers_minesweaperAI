@@ -97,6 +97,14 @@ Agent::Action MyAI::getAction( int number )
             effectiveLabel.insert({x, number});
         }
 
+		if (effectiveLabel[x] == 0)
+		{
+			addUnmarkedNeighborsToS(x);
+		}
+		else {
+			Q.insert(x);
+		}
+
 		if (uncoverGoal != uncovered)
 		{
             if(S.size() == 0)
@@ -167,14 +175,6 @@ Agent::Action MyAI::getAction( int number )
             if (S.size() != 0)
             {
                 // Pop x from S queue, check if x is a 0, if it is, add neighbors to S, if not, add x to Q.
-
-                if (effectiveLabel[x] == 0)
-                {
-                    addUnmarkedNeighborsToS(x);
-                }
-                else {
-                    Q.insert(x);
-                }
                 // Get UNCOVER coord from S
                 pair<int,int> coord = *S.begin();
                 x_uncovered = coord.first;
