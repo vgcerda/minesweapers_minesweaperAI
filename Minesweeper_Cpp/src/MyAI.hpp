@@ -40,7 +40,7 @@ public:
 
 	Action getAction ( int number ) override;
 
-	set<pair<int, int>> getUnmarkedTiles(pair<int,int> x);
+	set<pair<int, int>> getCoveredOrFlaggedTiles(pair<int,int> x);
 
 	void addUnmarkedNeighborsToS(pair<int,int> x);
 

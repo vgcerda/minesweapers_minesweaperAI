@@ -25,14 +25,15 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
     count++;
     // cout << count << endl; 
 	total_time_elapsed = 0.0;
+
 	vector<vector<int>> b(_rowDimension, vector<int>(_colDimension, -1));
+	board = b;
 	rows = _rowDimension;
 	cols = _colDimension;
-	board = b;
 
     uncoverGoal = (_rowDimension * _colDimension) - totalMines;
-
 	uncovered = 1;
+
 	row_uncovered = _agentY;
 	col_uncovered = _agentX;
 	
@@ -84,9 +85,6 @@ Agent::Action MyAI::getAction( int number )
 	}
 	else
 	{
-		// cout << row_uncovered << " " << col_uncovered << endl;
-
-		// cout << rows << " " << cols << endl;
 		auto start = std::chrono::system_clock::now();
         board[row_uncovered][col_uncovered] = number;
 
@@ -114,54 +112,85 @@ Agent::Action MyAI::getAction( int number )
 			{
                 set<pair<int, int>> unmarkedTiles;
                 set<pair<int,int>> markForDeletion;
-                for (auto q : Q)
-                {
-                    unmarkedTiles = getUnmarkedTiles(q);
-                    if (board[q.first][q.second] == unmarkedTiles.size())
-                    {
-                        for (auto tile: unmarkedTiles)
-                        {
-                            if (board[tile.first][tile.second] != -2)
-                            {
-                                // cout << "Flag: " << tile.first << ", " << tile.second << endl;
-                                mark(tile);
-                            }
-                            // mark function flags the tile and updates the effectiveLabel values
-                        }
-                        markForDeletion.insert(q);
-                    }
-                }
+				
+				// bool newMark = true;
+				// while (newMark) {
+				// 	newMark = false;
+				for (auto q : Q)
+				{
+					unmarkedTiles = getCoveredOrFlaggedTiles(q);
 
-                for (auto d : markForDeletion)
-                {
-                    Q.erase(d);
-                }
+					// cout << "Checking AMN(q) for pair: " << endl;
+					// cout << q.first + 1 << ", " << q.second << endl;
 
-                markForDeletion.clear();
+					if (board[q.first][q.second] == unmarkedTiles.size())
+					{
+						// cout << "For q: "<< endl;
+						// cout << q.first + 1 << ", " << q.second + 1 << endl;
+						for (auto tile: unmarkedTiles)
+						{
+							if (board[tile.first][tile.second] != -2)
+							{
+								mark(tile);
+								// cout << "Marked" << tile.first + 1 << ", " << tile.second + 1 << endl;
+								// newMark = true;
+							}
+						}
+						markForDeletion.insert(q);	
+					}
+				}
 
-                for (auto q : Q)
-                {
-                    if (effectiveLabel[q] == 0)
-                    {
-                        addUnmarkedNeighborsToS(q);
-                        markForDeletion.insert(q);
-                    }   
-                }
+				for (auto d : markForDeletion)
+				{
+					Q.erase(d);
+				}
 
-                for (auto d : markForDeletion)
-                {
-                    Q.erase(d);
-                }
+				markForDeletion.clear();
 
-                markForDeletion.clear();
+				for (auto q : Q)
+				{
+					if (effectiveLabel[q] == 0)
+					{
+						addUnmarkedNeighborsToS(q);
+						markForDeletion.insert(q);
+					}   
+				}
 
-				/////////////////////////////////////
-				// Select Random square if s is empty 
-				/////////////////////////////////////
+				for (auto d : markForDeletion)
+				{
+					Q.erase(d);
+				}
+
+				markForDeletion.clear();
+				// }
+
+				// cout << endl;
+				// for (int i = board.size() - 1; i > -1; i--) {
+				// 	vector<int> row = board[i];
+				//     string rowString = "";
+				//     for (int val: row) {
+				//         if (val == -1){
+				//             rowString += "-";
+				//         }
+				// 		else if (val == -2){
+				//             rowString += "*";
+				//         }
+				//         else{
+				//             rowString += to_string(val);
+				//         }
+				//         rowString += " ";
+				//     }
+				//     cout << rowString << endl;
+				// }
+			}
+			if (S.size() == 0)
+			{
+				// Checking if S is still empty even after checking for flags
+				//     This is where we implement the educated guess
+				// cout << "NEEDED: Implement Educated Guess Functionality" << endl;
 			}
             if (S.size() != 0)
             {
-                // Get UNCOVER coord from S
                 pair<int,int> coord = *S.begin();
                 row_uncovered = coord.first;
                 col_uncovered = coord.second;
@@ -180,55 +209,57 @@ Agent::Action MyAI::getAction( int number )
 	return {LEAVE,-1,-1};
 }
 
-set<pair<int, int>> MyAI::getUnmarkedTiles(pair<int, int> x)
+set<pair<int, int>> MyAI::getCoveredOrFlaggedTiles(pair<int, int> x)
 {
     set<pair<int, int>> unmarkedTiles;
     int i = x.first;
     int j = x.second;
 
-    if(j + 1 < board[i].size() && board[i][j+1] < 0)
+	// CHANGE THESE TO "&& board[][] < 0"
+
+    if(j + 1 < board[i].size() && (board[i][j+1] == -1 || board[i][j+1] == -2))
 	{
 		pair<int,int> right(i,j+1);
 		unmarkedTiles.insert(right);
 	}
 	// i, j - 1
-	if(j - 1 >= 0 && board[i][j-1] < 0)
+	if(j - 1 >= 0 && (board[i][j-1] == -1 || board[i][j-1] == -2))
 	{
 		pair<int,int> left(i,j-1);
 		unmarkedTiles.insert(left);
 	}
 	// i + 1, j
-	if(i + 1 < board.size() && board[i+1][j] < 0)
+	if(i + 1 < board.size() && (board[i+1][j] == -1 || board[i+1][j] == -2))
 	{
 		pair<int,int> down(i+1,j);
 		unmarkedTiles.insert(down);
 	}
 	// i - 1, j
-	if(i - 1 >= 0 && board[i-1][j] < 0)
+	if(i - 1 >= 0 && (board[i-1][j] == -1 || board[i-1][j] == -2))
 	{
 		pair<int,int> up(i-1,j);
 		unmarkedTiles.insert(up);
 	}
 	// i + 1, j - 1
-	if(i + 1 < board.size() && j - 1 >= 0 && board[i+1][j-1] < 0)
+	if(i + 1 < board.size() && j - 1 >= 0 && (board[i+1][j-1] == -1 || board[i+1][j-1] == -2))
 	{
 		pair<int,int> downLeft(i+1,j-1);
 		unmarkedTiles.insert(downLeft);
 	}
 	// i + 1, j + 1
-	if(i + 1 < board.size() && j + 1 < board[i].size() && board[i+1][j+1] < 0)
+	if(i + 1 < board.size() && j + 1 < board[i].size() && (board[i+1][j+1] == -1 || board[i+1][j+1] == -2))
 	{
 		pair<int,int> downRight(i+1,j+1);
 		unmarkedTiles.insert(downRight);
 	}
 	// i - 1, j - 1
-	if(i - 1 >= 0 && j - 1 >= 0 && board[i-1][j-1] < 0)
+	if(i - 1 >= 0 && j - 1 >= 0 && (board[i-1][j-1] == -1 || board[i-1][j-1] == -2))
 	{
 		pair<int,int> upLeft(i-1,j-1);
         unmarkedTiles.insert(upLeft);
 	}
 	// i - 1, j + 1
-	if(i - 1 >= 0 && j + 1 < board[i].size() && board[i-1][j+1] < 0)
+	if(i - 1 >= 0 && j + 1 < board[i].size() && (board[i-1][j+1] == -1 || board[i-1][j+1] == -2))
 	{
 		pair<int,int> upRight(i-1,j+1);
 		unmarkedTiles.insert(upRight);
