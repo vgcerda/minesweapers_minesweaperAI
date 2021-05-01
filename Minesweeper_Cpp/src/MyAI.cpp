@@ -33,11 +33,10 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
     uncoverGoal = (_rowDimension * _colDimension) - totalMines;
 
 	uncovered = 1;
-
-	x_uncovered = _agentX;
-	y_uncovered = _agentY;
-
-	pair<int, int> firstTile(_agentX, _agentY);
+	row_uncovered = _agentY;
+	col_uncovered = _agentX;
+	
+	pair<int, int> firstTile(row_uncovered, col_uncovered);
 	S.insert(firstTile);
 };
 
@@ -48,7 +47,6 @@ Agent::Action MyAI::getAction( int number )
     // {
     //     std::cout << to_string(it->first.first + 1) + ", " + to_string(it->first.second + 1) << ": " << to_string(it->second) << "\n";
     // }
-    // cout << "Hello" << endl;
 
     // cout << "Pairs in S:" << endl;
     // for (auto p: S)
@@ -64,7 +62,8 @@ Agent::Action MyAI::getAction( int number )
     // }
     // cout << endl;
 
-    // for (vector<int> row: board) {
+    // for (int i = board.size() - 1; i > -1; i--) {
+	// 	vector<int> row = board[i];
     //     string rowString = "";
     //     for (int val: row) {
     //         if (val == -1){
@@ -85,9 +84,13 @@ Agent::Action MyAI::getAction( int number )
 	}
 	else
 	{
+		// cout << row_uncovered << " " << col_uncovered << endl;
+
+		// cout << rows << " " << cols << endl;
 		auto start = std::chrono::system_clock::now();
-        board[x_uncovered][y_uncovered] = number;
-        pair<int, int> x(x_uncovered, y_uncovered);
+        board[row_uncovered][col_uncovered] = number;
+
+        pair<int, int> x(row_uncovered, col_uncovered);
         if (effectiveLabel.find(x) != effectiveLabel.end())
         {
             effectiveLabel[x] += number;
@@ -109,22 +112,6 @@ Agent::Action MyAI::getAction( int number )
 		{
             if(S.size() == 0)
 			{
-				// findToUncover();
-                // for q ∈ Q do
-                //     if isAMN(q) = True then
-                //         for y ∈ Unmarked-Neighbors(q) do
-                //             mark(y)
-                //         end for
-                //         Q.remove(q)
-                //     end if
-                // end for
-                // for q ∈ Q do
-                //     if isAFN(q) = True then
-                //         S ← S ∪ Unmarked-Neighbors(q)
-                //         Q.remove(q)
-                //     end if
-                // end for
-
                 set<pair<int, int>> unmarkedTiles;
                 set<pair<int,int>> markForDeletion;
                 for (auto q : Q)
@@ -174,23 +161,19 @@ Agent::Action MyAI::getAction( int number )
 			}
             if (S.size() != 0)
             {
-                // Pop x from S queue, check if x is a 0, if it is, add neighbors to S, if not, add x to Q.
                 // Get UNCOVER coord from S
                 pair<int,int> coord = *S.begin();
-                x_uncovered = coord.first;
-                y_uncovered = coord.second;
+                row_uncovered = coord.first;
+                col_uncovered = coord.second;
                 S.erase(S.begin());
+
                 // Update number of tiles uncovered
                 uncovered++;
-
-                // // Update uncovered tiles set
-                // pair<int, int> c(x_uncovered, y_uncovered);
-                // uncoveredSet.insert(c);
 
                 auto end = std::chrono::system_clock::now();
                 std::chrono::duration<double> diff = end-start;
                 total_time_elapsed += diff.count();
-                return {UNCOVER, coord.first, coord.second};
+                return {UNCOVER, col_uncovered, row_uncovered};
             }
 		}
 	}
@@ -393,96 +376,4 @@ void MyAI::addUnmarkedNeighborsToS(pair<int,int> x)
     //     cout << p.first + 1 << ", " << p.second + 1<< "; ";
     // }
     // cout << endl;
-}
-
-void MyAI::findToUncover()
-{
-	for(auto coord : uncoveredSet)
-	{
-        // cout << to_string(coord.first) + " " +  to_string(coord.second);
-		int i = coord.first;
-		int j = coord.second;
-		pair<int, int> c(i,j);
-		if(board[i][j] == 0 && visitedZeros.find(coord) == visitedZeros.end())
-		{
-			// i , j + 1
-			if(j + 1 < board[i].size())
-			{
-				pair<int,int> right(i,j+1);
-				if(uncoveredSet.find(right) == uncoveredSet.end())
-				{
-					S.insert(right);
-				}
-			}
-			// i, j - 1
-			if(j - 1 >= 0)
-			{
-				pair<int,int> left(i,j-1);
-				if(uncoveredSet.find(left) == uncoveredSet.end())
-				{
-					S.insert(left);
-				}
-			}
-			// i + 1, j
-			if(i + 1 < board.size())
-			{
-				pair<int,int> down(i+1,j);
-				if(uncoveredSet.find(down) == uncoveredSet.end())
-				{
-					S.insert(down);
-				}
-			}
-			// i - 1, j
-			if(i - 1 >= 0)
-			{
-				pair<int,int> up(i-1,j);
-				if(uncoveredSet.find(up) == uncoveredSet.end())
-				{
-					S.insert(up);
-				}
-			}
-			// i + 1, j - 1
-			if(i + 1 < board.size() && j - 1 >= 0)
-			{
-				pair<int,int> downLeft(i+1,j-1);
-				if(uncoveredSet.find(downLeft) == uncoveredSet.end())
-				{
-					S.insert(downLeft);
-				}
-			}
-			// i + 1, j + 1
-			if(i + 1 < board.size() && j + 1 < board[i].size())
-			{
-				pair<int,int> downRight(i+1,j+1);
-				if(uncoveredSet.find(downRight) == uncoveredSet.end())
-				{
-					S.insert(downRight);
-				}
-			}
-			// i - 1, j - 1
-			if(i - 1 >= 0 && j - 1 >= 0)
-			{
-				pair<int,int> upLeft(i-1,j-1);
-				if(uncoveredSet.find(upLeft) == uncoveredSet.end())
-				{
-					S.insert(upLeft);
-				}
-			}
-			// i - 1, j + 1
-			if(i - 1 >= 0 && j + 1 < board[i].size())
-			{
-				pair<int,int> upRight(i-1,j+1);
-				if(uncoveredSet.find(upRight) == uncoveredSet.end())
-				{
-					S.insert(upRight);
-				}
-			}
-			visitedZeros.insert(c);
-		}
-	}
-
-    // if (S.size() == 0)
-    // {
-
-    // }
 }

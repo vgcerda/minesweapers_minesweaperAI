@@ -40,8 +40,6 @@ public:
 
 	Action getAction ( int number ) override;
 
-	void findToUncover();
-
 	set<pair<int, int>> getUnmarkedTiles(pair<int,int> x);
 
 	void addUnmarkedNeighborsToS(pair<int,int> x);
@@ -50,17 +48,15 @@ public:
 
 private:
 	vector<vector<int>> board;
+	map<pair<int, int>, int> effectiveLabel;
 	set<pair<int,int>> S;
     set<pair<int,int>> Q;
-	set<pair<int, int>> uncoveredSet;
-	set<pair<int,int>> visitedZeros;
-    map<pair<int, int>, int> effectiveLabel;
 	int rows;
 	int cols;
 	int uncovered;
 	int uncoverGoal;
-	int x_uncovered;
-	int y_uncovered;
+	int row_uncovered;
+	int col_uncovered;
 	double total_time_elapsed;
 };
 
