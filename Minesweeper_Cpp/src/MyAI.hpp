@@ -40,6 +40,8 @@ public:
 
 	Action getAction ( int number ) override;
 
+	set<pair<int, int>> getCoveredTiles(pair<int,int> x);
+
 	set<pair<int, int>> getCoveredOrFlaggedTiles(pair<int,int> x);
 
 	void addUnmarkedNeighborsToS(pair<int,int> x);
@@ -51,6 +53,7 @@ private:
 	map<pair<int, int>, int> effectiveLabel;
 	set<pair<int,int>> S;
     set<pair<int,int>> Q;
+	map<pair<int,int>, float> probabilities;
 	int rows;
 	int cols;
 	int uncovered;

@@ -31,8 +31,8 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
 	rows = _rowDimension;
 	cols = _colDimension;
 
-    uncoverGoal = (_rowDimension * _colDimension) - totalMines;
-	uncovered = 1;
+    uncoverGoal = (_rowDimension * _colDimension) - _totalMines;
+	uncovered = 0;
 
 	row_uncovered = _agentY;
 	col_uncovered = _agentX;
@@ -182,9 +182,65 @@ Agent::Action MyAI::getAction( int number )
 				//     }
 				//     cout << rowString << endl;
 				// }
+
+				// for (auto q : Q) {
+				// 	cout << "Pair: " << q.first << ", " << q.second << endl;
+				// }
 			}
 			if (S.size() == 0)
 			{
+				set<pair<int, int>> uncoveredTiles;
+				for (auto q : Q) {
+					// Find the uncovered tiles next to each q and update their probs
+					uncoveredTiles = getCoveredTiles(q);
+					for (auto tile : uncoveredTiles) {
+						if (probabilities.count(tile) > 0) {
+							probabilities[tile] += 1.0 / uncoveredTiles.size();
+						}
+						else {
+							probabilities[tile] = 1.0 / uncoveredTiles.size();
+						}
+					}
+				}
+				// Find the uncovered tile with the maximum probability and insert them into S
+				float max = 0.0;
+				for (auto const& tile : probabilities)
+				{
+					if(tile.second > max){
+						max = tile.second;
+					}
+				}
+
+				set<pair<int,int>> markForDeletion;
+
+				for (auto const& tile : probabilities)
+				{
+					if(tile.second == max){
+						mark(tile.first);
+						for (auto q : Q)
+						{
+							if (effectiveLabel[q] == 0)
+							{
+								addUnmarkedNeighborsToS(q);
+								markForDeletion.insert(q);
+							}   
+						}
+						for (auto d : markForDeletion)
+						{
+							Q.erase(d);
+						}
+						markForDeletion.clear();
+					}
+				}				
+
+				// for (auto const& tile : probabilities)
+				// {
+				// 	cout << "Key: " << tile.first.first + 1 << ", " << tile.first.second + 1 << " Value: " << tile.second << endl;
+				// }
+
+				// for (auto s : S) {
+				// 	cout << "S Pair: " << s.first + 1 << ", " << s.second + 1 << endl;
+				// }
 				// Checking if S is still empty even after checking for flags
 				//     This is where we implement the educated guess
 				// cout << "NEEDED: Implement Educated Guess Functionality" << endl;
@@ -206,7 +262,88 @@ Agent::Action MyAI::getAction( int number )
             }
 		}
 	}
+	// if(uncovered != uncoverGoal){
+	// 	cout<<uncovered<<" "<<uncoverGoal<<endl;
+	// 	cout<<"FAIL"<<endl;
+	// }
+	
+	// for (int i = board.size() - 1; i > -1; i--) {
+	// 	vector<int> row = board[i];
+	// 	string rowString = "";
+	// 	for (int val: row) {
+	// 		if (val == -1){
+	// 			rowString += "-";
+	// 		}
+	// 		else if (val == -2){
+	// 			rowString += "*";
+	// 		}
+	// 		else{
+	// 			rowString += to_string(val);
+	// 		}
+	// 		rowString += " ";
+	// 	}
+	// 	cout << rowString << endl;
+	// }
 	return {LEAVE,-1,-1};
+}
+
+set<pair<int, int>> MyAI::getCoveredTiles(pair<int, int> x)
+{
+    set<pair<int, int>> unmarkedTiles;
+    int i = x.first;
+    int j = x.second;
+
+	// CHANGE THESE TO "&& board[][] < 0"
+
+    if(j + 1 < board[i].size() && (board[i][j+1] == -1))
+	{
+		pair<int,int> right(i,j+1);
+		unmarkedTiles.insert(right);
+	}
+	// i, j - 1
+	if(j - 1 >= 0 && (board[i][j-1] == -1))
+	{
+		pair<int,int> left(i,j-1);
+		unmarkedTiles.insert(left);
+	}
+	// i + 1, j
+	if(i + 1 < board.size() && (board[i+1][j] == -1))
+	{
+		pair<int,int> down(i+1,j);
+		unmarkedTiles.insert(down);
+	}
+	// i - 1, j
+	if(i - 1 >= 0 && (board[i-1][j] == -1))
+	{
+		pair<int,int> up(i-1,j);
+		unmarkedTiles.insert(up);
+	}
+	// i + 1, j - 1
+	if(i + 1 < board.size() && j - 1 >= 0 && (board[i+1][j-1] == -1))
+	{
+		pair<int,int> downLeft(i+1,j-1);
+		unmarkedTiles.insert(downLeft);
+	}
+	// i + 1, j + 1
+	if(i + 1 < board.size() && j + 1 < board[i].size() && (board[i+1][j+1] == -1))
+	{
+		pair<int,int> downRight(i+1,j+1);
+		unmarkedTiles.insert(downRight);
+	}
+	// i - 1, j - 1
+	if(i - 1 >= 0 && j - 1 >= 0 && (board[i-1][j-1] == -1))
+	{
+		pair<int,int> upLeft(i-1,j-1);
+        unmarkedTiles.insert(upLeft);
+	}
+	// i - 1, j + 1
+	if(i - 1 >= 0 && j + 1 < board[i].size() && (board[i-1][j+1] == -1))
+	{
+		pair<int,int> upRight(i-1,j+1);
+		unmarkedTiles.insert(upRight);
+	}
+
+    return unmarkedTiles;
 }
 
 set<pair<int, int>> MyAI::getCoveredOrFlaggedTiles(pair<int, int> x)
@@ -288,7 +425,7 @@ void MyAI::mark(pair<int, int> y)
 	if(j - 1 >= 0 && board[i][j - 1] > -2)
 	{
 		pair<int,int> left(i,j-1);
-        if (effectiveLabel.find(left) == effectiveLabel.end()) {
+        if (effectiveLabel.find(left) ==  effectiveLabel.end()) {
             effectiveLabel[left] = 0;
         }
         effectiveLabel[left] -= 1; 
