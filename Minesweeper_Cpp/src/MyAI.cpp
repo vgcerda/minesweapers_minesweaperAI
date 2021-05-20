@@ -212,10 +212,11 @@ Agent::Action MyAI::getAction( int number )
 				}
 
 				set<pair<int,int>> markForDeletion;
-
+				int limit = 0;
 				for (auto const& tile : probabilities)
 				{
 					if(tile.second == max){
+						limit++;
 						mark(tile.first);
 						for (auto q : Q)
 						{
@@ -230,8 +231,13 @@ Agent::Action MyAI::getAction( int number )
 							Q.erase(d);
 						}
 						markForDeletion.clear();
+						if (limit == 1) {
+							break;
+						}
 					}
-				}				
+				}	
+
+				probabilities.clear();			
 
 				// for (auto const& tile : probabilities)
 				// {
