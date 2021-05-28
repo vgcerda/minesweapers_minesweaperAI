@@ -53,7 +53,7 @@ private:
 	map<pair<int, int>, int> effectiveLabel;
 	set<pair<int,int>> S;
     set<pair<int,int>> Q;
-	map<pair<int,int>, float> probabilities;
+	map<pair<int,int>, double> probabilities;
 	int rows;
 	int cols;
 	int uncovered;

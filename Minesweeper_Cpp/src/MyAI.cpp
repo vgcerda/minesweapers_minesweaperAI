@@ -18,6 +18,7 @@
 // ======================================================================
 
 #include "MyAI.hpp"
+
 int MyAI::count = 0;
 
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
@@ -187,23 +188,30 @@ Agent::Action MyAI::getAction( int number )
 				// 	cout << "Pair: " << q.first << ", " << q.second << endl;
 				// }
 			}
-			if (S.size() == 0)
+			int x = 0;
+			while (S.size() == 0)
 			{
-				set<pair<int, int>> uncoveredTiles;
+				if (x == 5) {
+					break;
+				}
+				set<pair<int, int>> coveredTiles;
 				for (auto q : Q) {
 					// Find the uncovered tiles next to each q and update their probs
-					uncoveredTiles = getCoveredTiles(q);
-					for (auto tile : uncoveredTiles) {
+					coveredTiles = getCoveredTiles(q);
+					for (auto tile : coveredTiles) {
 						if (probabilities.count(tile) > 0) {
-							probabilities[tile] += 1.0 / uncoveredTiles.size();
+							// probabilities[tile] += 1.0 / (double) coveredTiles.size();
+							probabilities[tile] += (double) effectiveLabel[q] / (double) coveredTiles.size();
+
 						}
 						else {
-							probabilities[tile] = 1.0 / uncoveredTiles.size();
+							// probabilities[tile] = 1.0 / (double) coveredTiles.size();
+							probabilities[tile] = (double) effectiveLabel[q] / (double) coveredTiles.size();
 						}
 					}
 				}
-				// Find the uncovered tile with the maximum probability and insert them into S
-				float max = 0.0;
+				// // Find the uncovered tile with the maximum probability and insert them into S
+				double max = 0.0;
 				for (auto const& tile : probabilities)
 				{
 					if(tile.second > max){
@@ -213,8 +221,12 @@ Agent::Action MyAI::getAction( int number )
 
 				set<pair<int,int>> markForDeletion;
 				int limit = 0;
+				// for (auto const& tile : probabilities) { 
+				// 	cout << tile.first.second + 1 << ", " << tile.first.first + 1 << ": " << tile.second << endl;
+				// }
 				for (auto const& tile : probabilities)
-				{
+				{	
+					// cout << tile.first.second + 1 << ", " << tile.first.first + 1 << ": " << tile.second << endl;
 					if(tile.second == max){
 						limit++;
 						mark(tile.first);
@@ -250,9 +262,57 @@ Agent::Action MyAI::getAction( int number )
 				// Checking if S is still empty even after checking for flags
 				//     This is where we implement the educated guess
 				// cout << "NEEDED: Implement Educated Guess Functionality" << endl;
+				x++;
+			}
+			// for (auto s : S) {
+			// 	cout << "S Pair: " << s.first + 1 << ", " << s.second + 1 << endl;
+			// }
+
+			if (S.size() == 0) {
+				int z = 0;
+				int numSafeTiles = uncoverGoal - uncovered;
+				set<pair<int, int>> toUncover;
+				for (int i = board.size() - 1; i > -1; i--) {
+					vector<int> row = board[i];
+					for (int j = row.size() - 1; j > -1; j--) {
+						if (row[j] == -1) {
+							// z++;
+							pair<int, int> x(i, j);
+							toUncover.insert(x);
+							// break;
+							// if (z == y) {
+							// 	break;
+							// }
+						}
+					}
+				}
+				if (toUncover.size() == numSafeTiles) {
+					S.insert(toUncover.begin(), toUncover.end());
+				}
+				else {
+					S.insert(*toUncover.begin());
+				}
 			}
             if (S.size() != 0)
             {
+				// cout << "_------------------------------" << endl;
+				// for (int i = board.size() - 1; i > -1; i--) {
+				// 	vector<int> row = board[i];
+				// 	string rowString = "";
+				// 	for (int val: row) {
+				// 		if (val == -1){
+				// 			rowString += "-";
+				// 		}
+				// 		else if (val == -2){
+				// 			rowString += "*";
+				// 		}
+				// 		else{
+				// 			rowString += to_string(val);
+				// 		}
+				// 		rowString += " ";
+				// 	}
+				// 	cout << rowString << endl;
+				// }
                 pair<int,int> coord = *S.begin();
                 row_uncovered = coord.first;
                 col_uncovered = coord.second;
@@ -268,10 +328,14 @@ Agent::Action MyAI::getAction( int number )
             }
 		}
 	}
-	// if(uncovered != uncoverGoal){
-	// 	cout<<uncovered<<" "<<uncoverGoal<<endl;
-	// 	cout<<"FAIL"<<endl;
-	// }
+
+
+	if(uncovered != uncoverGoal){
+		cout<<uncovered<<" "<<uncoverGoal<<endl;
+		cout<<"FAIL"<<endl;
+	}
+
+	
 	
 	// for (int i = board.size() - 1; i > -1; i--) {
 	// 	vector<int> row = board[i];
