@@ -220,6 +220,7 @@ Agent::Action MyAI::getAction( int number )
 				}
 
 				set<pair<int,int>> markForDeletion;
+				// set<pair<int, int>> toUncover;
 				int limit = 0;
 				// for (auto const& tile : probabilities) { 
 				// 	cout << tile.first.second + 1 << ", " << tile.first.first + 1 << ": " << tile.second << endl;
@@ -246,9 +247,39 @@ Agent::Action MyAI::getAction( int number )
 						if (limit == 1) {
 							break;
 						}
-					}
-				}	
 
+						// UNCOMMENT UNDER FOR RANDOM GUESSING BETWEEN EQUAL PROBABILITIES
+
+						// toUncover.insert(tile.first);
+					}
+				}
+
+				// UNCOMMENT UNDER FOR RANDOM GUESSING BETWEEN EQUAL PROBABILITIES
+ 
+				// if (toUncover.size() > 0) {
+				// 	int r = rand() % toUncover.size();
+				// 	int j = 0;
+				// 	for (auto tile : toUncover) {
+				// 		if (r == j) {
+				// 			mark(tile);
+				// 			for (auto q : Q)
+				// 			{
+				// 				if (effectiveLabel[q] == 0)
+				// 				{
+				// 					addUnmarkedNeighborsToS(q);
+				// 					markForDeletion.insert(q);
+				// 				}   
+				// 			}
+				// 			for (auto d : markForDeletion)
+				// 			{
+				// 				Q.erase(d);
+				// 			}
+				// 			markForDeletion.clear();
+				// 		}
+				// 		j++;
+				// 	}
+				// }
+				
 				probabilities.clear();			
 
 				// for (auto const& tile : probabilities)
