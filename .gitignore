@@ -2,3 +2,5 @@ Minesweeper_Cpp/bin/
 Minesweeper_Cpp/src/.nfs0000000006b3367200000110
 src/*.swp
 .vscode
+.DS_Store
+Minesweeper_Cpp/.DS_Store

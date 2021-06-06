@@ -23,8 +23,7 @@ int MyAI::count = 0;
 
 MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX, int _agentY ) : Agent()
 {
-    count++;
-    // cout << count << endl; 
+    count++; 
 	total_time_elapsed = 0.0;
 
 	vector<vector<int>> b(_rowDimension, vector<int>(_colDimension, -1));
@@ -44,41 +43,6 @@ MyAI::MyAI ( int _rowDimension, int _colDimension, int _totalMines, int _agentX,
 
 Agent::Action MyAI::getAction( int number )
 {
-    // cout << "Effective Labels: " << endl;
-    // for(auto it = effectiveLabel.cbegin(); it != effectiveLabel.cend(); ++it)
-    // {
-    //     std::cout << to_string(it->first.first + 1) + ", " + to_string(it->first.second + 1) << ": " << to_string(it->second) << "\n";
-    // }
-
-    // cout << "Pairs in S:" << endl;
-    // for (auto p: S)
-    // {
-    //     cout << p.first + 1 << ", " << p.second + 1<< "; ";
-    // }
-    // cout << endl;
-
-    // cout << "Pairs in Q:" << endl;
-    // for (auto p: Q)
-    // {
-    //     cout << p.first + 1 << ", " << p.second + 1 << "; ";
-    // }
-    // cout << endl;
-
-    // for (int i = board.size() - 1; i > -1; i--) {
-	// 	vector<int> row = board[i];
-    //     string rowString = "";
-    //     for (int val: row) {
-    //         if (val == -1){
-    //             rowString += "-";
-    //         }
-    //         else{
-    //             rowString += to_string(val);
-    //         }
-    //         rowString += " ";
-    //     }
-    //     cout << rowString << endl;
-    // }
-
 	if(total_time_elapsed > 290.0)
 	{
 		// Make random moves
@@ -114,27 +78,17 @@ Agent::Action MyAI::getAction( int number )
                 set<pair<int, int>> unmarkedTiles;
                 set<pair<int,int>> markForDeletion;
 				
-				// bool newMark = true;
-				// while (newMark) {
-				// 	newMark = false;
 				for (auto q : Q)
 				{
 					unmarkedTiles = getCoveredOrFlaggedTiles(q);
 
-					// cout << "Checking AMN(q) for pair: " << endl;
-					// cout << q.first + 1 << ", " << q.second << endl;
-
 					if (board[q.first][q.second] == unmarkedTiles.size())
 					{
-						// cout << "For q: "<< endl;
-						// cout << q.first + 1 << ", " << q.second + 1 << endl;
 						for (auto tile: unmarkedTiles)
 						{
 							if (board[tile.first][tile.second] != -2)
 							{
 								mark(tile);
-								// cout << "Marked" << tile.first + 1 << ", " << tile.second + 1 << endl;
-								// newMark = true;
 							}
 						}
 						markForDeletion.insert(q);	
@@ -163,30 +117,6 @@ Agent::Action MyAI::getAction( int number )
 				}
 
 				markForDeletion.clear();
-				// }
-
-				// cout << endl;
-				// for (int i = board.size() - 1; i > -1; i--) {
-				// 	vector<int> row = board[i];
-				//     string rowString = "";
-				//     for (int val: row) {
-				//         if (val == -1){
-				//             rowString += "-";
-				//         }
-				// 		else if (val == -2){
-				//             rowString += "*";
-				//         }
-				//         else{
-				//             rowString += to_string(val);
-				//         }
-				//         rowString += " ";
-				//     }
-				//     cout << rowString << endl;
-				// }
-
-				// for (auto q : Q) {
-				// 	cout << "Pair: " << q.first << ", " << q.second << endl;
-				// }
 			}
 			int x = 0;
 			while (S.size() == 0)
@@ -220,14 +150,9 @@ Agent::Action MyAI::getAction( int number )
 				}
 
 				set<pair<int,int>> markForDeletion;
-				// set<pair<int, int>> toUncover;
 				int limit = 0;
-				// for (auto const& tile : probabilities) { 
-				// 	cout << tile.first.second + 1 << ", " << tile.first.first + 1 << ": " << tile.second << endl;
-				// }
 				for (auto const& tile : probabilities)
 				{	
-					// cout << tile.first.second + 1 << ", " << tile.first.first + 1 << ": " << tile.second << endl;
 					if(tile.second == max){
 						limit++;
 						mark(tile.first);
@@ -247,57 +172,12 @@ Agent::Action MyAI::getAction( int number )
 						if (limit == 1) {
 							break;
 						}
-
-						// UNCOMMENT UNDER FOR RANDOM GUESSING BETWEEN EQUAL PROBABILITIES
-
-						// toUncover.insert(tile.first);
 					}
 				}
-
-				// UNCOMMENT UNDER FOR RANDOM GUESSING BETWEEN EQUAL PROBABILITIES
- 
-				// if (toUncover.size() > 0) {
-				// 	int r = rand() % toUncover.size();
-				// 	int j = 0;
-				// 	for (auto tile : toUncover) {
-				// 		if (r == j) {
-				// 			mark(tile);
-				// 			for (auto q : Q)
-				// 			{
-				// 				if (effectiveLabel[q] == 0)
-				// 				{
-				// 					addUnmarkedNeighborsToS(q);
-				// 					markForDeletion.insert(q);
-				// 				}   
-				// 			}
-				// 			for (auto d : markForDeletion)
-				// 			{
-				// 				Q.erase(d);
-				// 			}
-				// 			markForDeletion.clear();
-				// 		}
-				// 		j++;
-				// 	}
-				// }
 				
 				probabilities.clear();			
-
-				// for (auto const& tile : probabilities)
-				// {
-				// 	cout << "Key: " << tile.first.first + 1 << ", " << tile.first.second + 1 << " Value: " << tile.second << endl;
-				// }
-
-				// for (auto s : S) {
-				// 	cout << "S Pair: " << s.first + 1 << ", " << s.second + 1 << endl;
-				// }
-				// Checking if S is still empty even after checking for flags
-				//     This is where we implement the educated guess
-				// cout << "NEEDED: Implement Educated Guess Functionality" << endl;
 				x++;
 			}
-			// for (auto s : S) {
-			// 	cout << "S Pair: " << s.first + 1 << ", " << s.second + 1 << endl;
-			// }
 
 			if (S.size() == 0) {
 				int z = 0;
@@ -307,13 +187,8 @@ Agent::Action MyAI::getAction( int number )
 					vector<int> row = board[i];
 					for (int j = row.size() - 1; j > -1; j--) {
 						if (row[j] == -1) {
-							// z++;
 							pair<int, int> x(i, j);
 							toUncover.insert(x);
-							// break;
-							// if (z == y) {
-							// 	break;
-							// }
 						}
 					}
 				}
@@ -326,24 +201,6 @@ Agent::Action MyAI::getAction( int number )
 			}
             if (S.size() != 0)
             {
-				// cout << "_------------------------------" << endl;
-				// for (int i = board.size() - 1; i > -1; i--) {
-				// 	vector<int> row = board[i];
-				// 	string rowString = "";
-				// 	for (int val: row) {
-				// 		if (val == -1){
-				// 			rowString += "-";
-				// 		}
-				// 		else if (val == -2){
-				// 			rowString += "*";
-				// 		}
-				// 		else{
-				// 			rowString += to_string(val);
-				// 		}
-				// 		rowString += " ";
-				// 	}
-				// 	cout << rowString << endl;
-				// }
                 pair<int,int> coord = *S.begin();
                 row_uncovered = coord.first;
                 col_uncovered = coord.second;
@@ -366,25 +223,6 @@ Agent::Action MyAI::getAction( int number )
 		cout<<"FAIL"<<endl;
 	}
 
-	
-	
-	// for (int i = board.size() - 1; i > -1; i--) {
-	// 	vector<int> row = board[i];
-	// 	string rowString = "";
-	// 	for (int val: row) {
-	// 		if (val == -1){
-	// 			rowString += "-";
-	// 		}
-	// 		else if (val == -2){
-	// 			rowString += "*";
-	// 		}
-	// 		else{
-	// 			rowString += to_string(val);
-	// 		}
-	// 		rowString += " ";
-	// 	}
-	// 	cout << rowString << endl;
-	// }
 	return {LEAVE,-1,-1};
 }
 
@@ -639,10 +477,4 @@ void MyAI::addUnmarkedNeighborsToS(pair<int,int> x)
 		pair<int,int> upRight(i-1,j+1);
 		S.insert(upRight);
 	}
-    // cout << "addUnmarkedNeighborsToS:Pairs in S:" << endl;
-    // for (auto p: S)
-    // {
-    //     cout << p.first + 1 << ", " << p.second + 1<< "; ";
-    // }
-    // cout << endl;
 }
